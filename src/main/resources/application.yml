@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: prometheus
+
+server:
+  port: 8066
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+#  endpoint:
+#    prometheus:
+#      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+logging:
+  pattern:
+    console: '{"timestamp":"%d{yyyy-MM-dd''T''HH:mm:ss.SSSZ}","level":"%p","logger":"%c","thread":"%t","message":"%m"}%n'
