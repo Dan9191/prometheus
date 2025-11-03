@@ -23,7 +23,7 @@ class LoadService {
 
     fun simulateProcessing(): Long {
         val start = System.currentTimeMillis()
-        Thread.sleep(Random.nextLong(500, 2000))
+        Thread.sleep(Random.nextLong(50, 200))
         return System.currentTimeMillis() - start
     }
 }

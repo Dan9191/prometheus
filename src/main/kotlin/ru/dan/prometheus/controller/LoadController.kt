@@ -36,10 +36,30 @@ class LoadController(
     @GetMapping("/simulate")
     fun simulate(): String {
         logger.info("Document processing simulation started")
+
+        // Симулируем обработку документа
         val duration = loadService.simulateProcessing()
+
+        // Увеличиваем общий счётчик
         meterRegistry.counter("documents_processed_total").increment()
+
+        // Определяем успех или неудачу (80% успеха)
+        val isSuccess = Math.random() < 0.8
+
+        if (isSuccess) {
+            meterRegistry.counter("documents_processed_success").increment()
+            logger.info("Document processed successfully in {} ms", duration)
+        } else {
+            meterRegistry.counter("documents_processed_failure").increment()
+            logger.warn("Document processing failed in {} ms", duration)
+        }
+
+        // Фиксируем длительность обработки
         meterRegistry.timer("document_processing_duration").record(duration, TimeUnit.MILLISECONDS)
-        logger.info("Document processed in {} ms", duration)
-        return "Processed document in $duration ms"
+
+        return if (isSuccess)
+            "Processed document successfully in $duration ms"
+        else
+            "Document processing failed after $duration ms"
     }
 }
