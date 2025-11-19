@@ -25,8 +25,7 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("edu.stanford.nlp:stanford-corenlp:4.4.0")
-	implementation("edu.stanford.nlp:stanford-corenlp:4.4.0:models")
-	implementation("edu.stanford.nlp:stanford-corenlp:4.4.0:models-english@jar")
+
 	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
