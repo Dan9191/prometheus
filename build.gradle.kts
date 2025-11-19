@@ -24,6 +24,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("edu.stanford.nlp:stanford-corenlp:4.4.0")
+	implementation("edu.stanford.nlp:stanford-corenlp:4.4.0:models")
+	implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+
 	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
