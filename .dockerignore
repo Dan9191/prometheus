@@ -1,0 +1,23 @@
+# Gradle
+.gradle
+build/
+!build/libs/
+
+# Логи, кэш
+*.log
+*.tmp
+*.cache
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Git
+.git
+.gitignore
+
+# Другие ненужные папки
+src/test/
+docker-compose.yml
+README.md
