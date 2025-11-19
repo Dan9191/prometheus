@@ -26,6 +26,24 @@ docker build -t prometheus-demo .
 docker run -p 8066:8066 prometheus-demo
 ```
 
+#### Получение всех записей студента
+```http
+POST /api/sentiment
+
+Content-Type: application/json
+
+{
+  "text": "i love ice cream",
+}
+```
+
+##### Ответ (200 OK):
+```json
+{
+  "sentiment": "Neutral"
+}
+```
+
 ## Метрики Prometheus
 ### Общее количество обработанных документов
 documents_processed_total
