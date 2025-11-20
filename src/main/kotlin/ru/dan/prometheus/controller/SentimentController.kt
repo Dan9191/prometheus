@@ -4,7 +4,10 @@ import edu.stanford.nlp.pipeline.CoreDocument
 import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import io.micrometer.core.instrument.MeterRegistry
 import mu.KotlinLogging
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 import ru.dan.prometheus.model.SentimentRequest
 import ru.dan.prometheus.model.SentimentResponse
 import java.util.*
@@ -31,44 +34,42 @@ class SentimentController(
         val text = request.text.trim()
         if (text.isBlank()) {
             logger.info { "Received empty text for sentiment analysis" }
-            meterRegistry.counter("sentiment_requests_empty").increment()
+            meterRegistry.counter("sentiment_neutral_total").increment()
             return SentimentResponse("Neutral")
         }
-
-        logger.info { "Analyzing sentiment for text (length=${text.length}): \"$text\"" }
 
         val document = CoreDocument(text)
         pipeline.annotate(document)
-
         val sentences = document.sentences()
+
         if (sentences.isEmpty()) {
-            meterRegistry.counter("sentiment_result", "value", "Neutral").increment()
+            meterRegistry.counter("sentiment_neutral_total").increment()
             return SentimentResponse("Neutral")
         }
 
-        val allSentiments = sentences.mapNotNull { it.sentiment() }
-        val mainSentiment = allSentiments
-            .maxByOrNull { it.toSentimentScore() } ?: "Neutral"
+        val sentiments = sentences.map { it.sentiment().toSimpleSentiment() }
 
-        logger.info { "Detected main sentiment: $mainSentiment (from ${allSentiments.size} sentence(s))" }
+        val mainSentiment = sentiments
+            .groupingBy { it }
+            .eachCount()
+            .maxByOrNull { it.value }?.key ?: "Neutral"
 
-        meterRegistry.counter("sentiment_result", "value", mainSentiment).increment()
-        meterRegistry.counter("sentiment_sentences_total").increment(allSentiments.size.toDouble())
+        logger.info { "Detected sentiment: $mainSentiment" }
 
-
-        allSentiments.forEach { sentiment ->
-            meterRegistry.counter("sentiment_per_sentence", "value", sentiment).increment()
+        // Инкремент нужного счётчика
+        when (mainSentiment) {
+            "Positive" -> meterRegistry.counter("sentiment_positive_total").increment()
+            "Neutral"  -> meterRegistry.counter("sentiment_neutral_total").increment()
+            "Negative" -> meterRegistry.counter("sentiment_negative_total").increment()
         }
 
         return SentimentResponse(mainSentiment)
     }
 }
 
-private fun String.toSentimentScore(): Int = when (this) {
-    "VeryPositive" -> 4
-    "Positive"     -> 3
-    "Neutral"      -> 2
-    "Negative"     -> 1
-    "VeryNegative" -> 0
-    else           -> 2
+private fun String.toSimpleSentiment(): String = when (this) {
+    "VeryPositive", "Positive" -> "Positive"
+    "Neutral" -> "Neutral"
+    "Negative", "VeryNegative" -> "Negative"
+    else -> "Neutral"
 }
